@@ -19,11 +19,16 @@ import requests
 #其他库
 import traceback
 import time
-#from utils import CommonUtil as cu
-#from utils import StockDataUtil as sdu
+import pandas as pd
+import numpy as np
+import json
+from utils import DateAndTimeUtil as datu
+from utils import CommonUtil as cu
+from utils import StockDataUtil as sdu
 
-import CommonUtil as cu
-import StockDataUtil as sdu
+#import DateAndTimeUtil as datu
+#import CommonUtil as cu
+#import StockDataUtil as sdu
 
 # 使用xlwt.Workbook() 初始化
 def addHeaders(workbook,board_name,heads):
@@ -126,13 +131,14 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
                     if page < total_page:
                         page_btn.click()
                         time.sleep(2)
-                #保存为xls文件
-                file_path = dir_path + board_name +'.xls'
-                workbook.save(file_path)
                 
                 print('数据下载完毕，已保存到'+file_path)
     except Exception as e:
         traceback.print_exc()
+    #保存为xls文件
+    file_path = dir_path + board_name +'.xls'
+    workbook.save(file_path)
+    
     browser.close()
     browser.quit()
     
@@ -267,6 +273,123 @@ def getBaseDataFromF10(code,row,index,sheet):
     except ConnectionResetError:
         print(code)
         
+#获取年报
+def getAnnualReportByStockCode (stock_code,date):
+    #拼接完整股票代码
+    symbol= "SZ"+stock_code if stock_code[0] in ["0", "3"] else "SH"+stock_code
+    # 报告数量取1，会从制定日期向前获取最近的一个报告
+    count = 1
+
+    # https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol=SH601318&type=all&is_detail=true&count=5&timestamp=1574826156123
+    url = "https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?" \
+            "symbol={}&type=all&is_detail=true&count={}&timestamp={}" .\
+            format(symbol, count,datu.date2TimeStamp(date))
+
+    # header里面必须加入Cookie，否则会报400错误
+    headers = {"user-agent":"PostmanRuntime/7.13.0",
+               "Cookie":"xq_a_token.sig=PsMGyjjYlfq-rIaaHcjsTYLCLUI; xq_r_token.sig=ZjX7QUQXP0ego37J0qiLOHGZH7Y; device_id=0887667ae157d8aecf875f314dcb8289; s=cn151gduqd; Hm_lvt_1db88642e346389874251b5a1eded6e3=1574730685; remember=1; xq_a_token=285dde3cce95b000682556142a7dcb0e8074ef3f; xqat=285dde3cce95b000682556142a7dcb0e8074ef3f; xq_r_token=91df29cf76abbdd617283a2178b3369d87d7be26; xq_is_login=1; u=1333010681; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1574752875"}
+
+    data = requests.get(url, headers = headers)
+    try:
+        data = pd.read_json(data.text, dtype=False, orient='records')
+    except Exception as e:
+        return {}
+    # title = data['data']['quote_name'] + '({})'.format(symbol)
+    try:
+        dict_fin = pd.Series(data['data']['list'])[0]
+        return dict_fin
+    except Exception as e:
+        return {}
+    
+years = {'2013':'2013-12-31','2014':'2014-12-31','2015':'2015-12-31','2016':'2016-12-31','2017':'2017-12-31','2018':'2018-12-31'} 
+def getAnnualReports (dir_path,df,year):
+    workbook = xlwt.Workbook()
+
+    # stock_code：股票代码
+    # stock_name：股票简称
+    '-------财务数据-------'
+    # total_revenue：营业收入
+    # net_profit_atsopc：净利润
+    
+    # basic_eps：每股收益
+    # np_per_share：每股净资产
+    # operate_cash_flow_ps：现金流
+    
+    # avg_roe：净资产收益率
+    # asset_liab_ratio：资产负债率
+    
+    heads = ['stock_code','stock_name','total_revenue','total_revenue_gr','net_profit_atsopc','net_profit_atsopc_gr','basic_eps','basic_eps_gr',
+             'np_per_share','np_per_share_gr','operate_cash_flow_ps','operate_cash_flow_ps_gr','avg_roe','asset_liab_ratio']
+    #添加表头
+    sheet = workbook.add_sheet(year + "年报") 
+    for h in range(len(heads)):
+        sheet.write(0, h, heads[h]) 
+    
+    row_index = 0
+    for index, row in df.iterrows():
+        stock_code = row['StockCode']
+        dict_ar = getAnnualReportByStockCode(stock_code,years[year])
+        if len(dict_ar) == 0:
+            continue
+        if year not in dict_ar['report_name']:
+            continue
+        row_index = row_index + 1
+        cu.printProgress('获取第'+str(row_index)+'条')
+        
+        sheet.write(row_index,0,stock_code)
+        sheet.write(row_index,1,row['StockName'])
+        sheet.write(row_index,2,dict_ar['total_revenue'][0])
+        sheet.write(row_index,3,dict_ar['total_revenue'][1])
+        sheet.write(row_index,4,dict_ar['net_profit_atsopc'][0])
+        sheet.write(row_index,5,dict_ar['net_profit_atsopc'][1])
+        sheet.write(row_index,6,dict_ar['basic_eps'][0])
+        sheet.write(row_index,7,dict_ar['basic_eps'][1])
+        sheet.write(row_index,8,dict_ar['np_per_share'][0])
+        sheet.write(row_index,9,dict_ar['np_per_share'][1])
+        sheet.write(row_index,10,dict_ar['operate_cash_flow_ps'][0])
+        sheet.write(row_index,11,dict_ar['operate_cash_flow_ps'][1])
+        sheet.write(row_index,12,float(0 if dict_ar['avg_roe'][0] is None else dict_ar['avg_roe'][0])/100)
+        sheet.write(row_index,13,float(dict_ar['asset_liab_ratio'][0])/100)
+        
+    #     if index == 10:
+    #         break
+    file_path = dir_path + year + '年报.xls'
+    workbook.save(file_path)
+    print('数据下载完毕，已保存到'+file_path)
+    
+# 获取历史动态市盈率
+def getPETTM(stock_code,years = 5):
+    url = 'http://www.dashiyetouzi.com/tools/compare/historical_valuation_data.php'
+    # 这里必须带上Cookie，否则获取不到数据
+    headers = {"user-agent":"PostmanRuntime/7.13.0",
+              "Cookie":"PHPSESSID=3n0ka6t15s4prls0bd7mll7u30; stock=%u8363%u6CF0%u5065%u5EB7%3BSH%3B603579; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1577670043; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1577670259"}
+    
+    from_date = datu.timeStamp2Date(time.time() - (datu.oneDaySecond() * years * 365))
+    to_date = datu.timeStamp2Date(time.time())
+    params = (('report_type', 'pettm'),('report_stock_id', stock_code),('from_date', from_date),('to_date',to_date ))
+    response = requests.post(url, headers = headers,data=params)
+    
+    return json.loads(response.text)
+
+#计算市盈率中位数
+def getPEMedian(stock_code):
+    data = getPETTM(stock_code)
+    pe_list = []
+    try:
+        for pair in data['list']:
+            pe_list.append(pair[1])
+        pe_median = np.median(pe_list)
+#        pe_newest = pe_list[len(pe_list) - 1]
+    except Exception as e:
+        return 0
+    
+    return pe_median
+        
 #getStockDataByType('E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/')
 #getIndexStockByType('E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/','沪深300')
-        
+    
+#df = pd.read_excel("E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/沪深A股.xls",converters= {u'StockCode':str})
+#dir_path = 'E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/'
+#getAnnualReports(dir_path,df,'2018')
+    
+#print(getPEMedian('002572'))
