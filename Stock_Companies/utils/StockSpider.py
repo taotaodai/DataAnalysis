@@ -362,7 +362,7 @@ def getPETTM(stock_code,years = 5):
     url = 'http://www.dashiyetouzi.com/tools/compare/historical_valuation_data.php'
     # 这里必须带上Cookie，否则获取不到数据
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-              "Cookie":"PHPSESSID=3n0ka6t15s4prls0bd7mll7u30; stock=%u8363%u6CF0%u5065%u5EB7%3BSH%3B603579; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1577670043; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1577670259"}
+              "Cookie":"PHPSESSID=3n0ka6t15s4prls0bd7mll7u30; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1577670043; stock=%u7D22%u83F2%u4E9A%3BSZ%3B002572; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1579419910"}
     
     from_date = datu.timeStamp2Date(time.time() - (datu.oneDaySecond() * years * 365))
     to_date = datu.timeStamp2Date(time.time())
