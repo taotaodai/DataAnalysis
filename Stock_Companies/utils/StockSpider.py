@@ -100,7 +100,8 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
                 page_parent = browser.find_element_by_class_name('paginate_page')
                 pages = page_parent.find_elements_by_xpath('.//*')
                 total_page = int(pages[len(pages) - 1].text)
-
+                
+                total_page = 2
                 #统计每页缺失数据的数量
                 missing_count = 0
                 row_index = 0
@@ -362,7 +363,7 @@ def getPETTM(stock_code,years = 5):
     url = 'http://www.dashiyetouzi.com/tools/compare/historical_valuation_data.php'
     # 这里必须带上Cookie，否则获取不到数据
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-              "Cookie":"PHPSESSID=3n0ka6t15s4prls0bd7mll7u30; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1577670043; stock=%u7D22%u83F2%u4E9A%3BSZ%3B002572; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1579419910"}
+              "Cookie":"PHPSESSID=vjmeq3g7as5o2btsr8eiso6lu5; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1580631493; stock=%u6D4E%u5DDD%u836F%u4E1A%3BSH%3B600566; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1581237162"}
     
     from_date = datu.timeStamp2Date(time.time() - (datu.oneDaySecond() * years * 365))
     to_date = datu.timeStamp2Date(time.time())
