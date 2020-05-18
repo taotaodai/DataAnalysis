@@ -101,7 +101,6 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
                 pages = page_parent.find_elements_by_xpath('.//*')
                 total_page = int(pages[len(pages) - 1].text)
                 
-                total_page = 2
                 #统计每页缺失数据的数量
                 missing_count = 0
                 row_index = 0
@@ -288,7 +287,7 @@ def getAnnualReportByStockCode (stock_code,date):
 
     # header里面必须加入Cookie，否则会报400错误
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-               "Cookie":"xq_a_token.sig=PsMGyjjYlfq-rIaaHcjsTYLCLUI; xq_r_token.sig=ZjX7QUQXP0ego37J0qiLOHGZH7Y; device_id=0887667ae157d8aecf875f314dcb8289; s=cn151gduqd; Hm_lvt_1db88642e346389874251b5a1eded6e3=1574730685; remember=1; xq_a_token=285dde3cce95b000682556142a7dcb0e8074ef3f; xqat=285dde3cce95b000682556142a7dcb0e8074ef3f; xq_r_token=91df29cf76abbdd617283a2178b3369d87d7be26; xq_is_login=1; u=1333010681; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1574752875"}
+               "Cookie":"device_id=0887667ae157d8aecf875f314dcb8289; s=cn151gduqd; bid=232c888fc9a3a35853a183e5b3261fdc_k3gpvgsx; Hm_lvt_1db88642e346389874251b5a1eded6e3=1589510813; remember=1; xq_a_token=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOjEzMzMwMTA2ODEsImlzcyI6InVjIiwiZXhwIjoxNTkyMTAyODUzLCJjdG0iOjE1ODk1MTA4NTMyMTEsImNpZCI6ImQ5ZDBuNEFadXAifQ.eUJyQFOJNeLia4668qKnbUJwJZC4N6ypxoip-WZeJOvOhN7d7CdpbSjZ3Bfg9AoR5qAL4oCVse00PSCiBHPCuBtwRcLg2FgYLzOcpWeb_MNHdg7bqv-UScYnEC-eFE73unup7RQfmeCylNFFrpmmcHKRPnwenTXZ0_wpmu5VPZdtoBd0gsj8mYecB6cHXvnoIVXyDnO8B6Iw4MBzbfCEAGU2DJRwtZQLQIzVrKouzzeUP2QuoWe-56GFyi-s-dTHA92KB0QPAyPkbRgZA45GMIkZBBB4_b2MFHb5KEou1dWp9m5kXFo2HJqJ5til2mX_pyXL8h6LCsmbLJvv1B42Jw; xqat=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_r_token=b6932ec9dc8669d2714c8d301ad32f66c113ed13; xq_is_login=1; u=1333010681; is_overseas=0; snbim_minify=true; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1589510867"}
 
     data = requests.get(url, headers = headers)
     try:
@@ -302,7 +301,7 @@ def getAnnualReportByStockCode (stock_code,date):
     except Exception as e:
         return {}
     
-years = {'2013':'2013-12-31','2014':'2014-12-31','2015':'2015-12-31','2016':'2016-12-31','2017':'2017-12-31','2018':'2018-12-31'} 
+years = {'2013':'2013-12-31','2014':'2014-12-31','2015':'2015-12-31','2016':'2016-12-31','2017':'2017-12-31','2018':'2018-12-31','2019':'2019-12-31'} 
 def getAnnualReports (dir_path,df,year):
     workbook = xlwt.Workbook()
 
@@ -363,7 +362,7 @@ def getPETTM(stock_code,years = 5):
     url = 'http://www.dashiyetouzi.com/tools/compare/historical_valuation_data.php'
     # 这里必须带上Cookie，否则获取不到数据
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-              "Cookie":"PHPSESSID=vjmeq3g7as5o2btsr8eiso6lu5; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1580631493; stock=%u6D4E%u5DDD%u836F%u4E1A%3BSH%3B600566; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1581237162"}
+              "Cookie":"PHPSESSID=33rfqe5qn4k1denua4nv4t7a36; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1582880026; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1582880122"}
     
     from_date = datu.timeStamp2Date(time.time() - (datu.oneDaySecond() * years * 365))
     to_date = datu.timeStamp2Date(time.time())
