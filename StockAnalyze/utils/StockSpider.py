@@ -1,17 +1,10 @@
-import sys
-import os
 
 #xl文件处理库
 import xlwt
-import xlrd
 from lxml import etree
-from xlutils.copy import copy
 
 #自动化测试库
 from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 
 #网络请求库
 import requests
@@ -26,9 +19,9 @@ from utils import DateAndTimeUtil as datu
 from utils import CommonUtil as cu
 from utils import StockDataUtil as sdu
 
-#import DateAndTimeUtil as datu
-#import CommonUtil as cu
-#import StockDataUtil as sdu
+# import DateAndTimeUtil as datu
+# import CommonUtil as cu
+# import StockDataUtil as sdu
 
 # 使用xlwt.Workbook() 初始化
 def addHeaders(workbook,board_name,heads):
@@ -132,12 +125,12 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
                         page_btn.click()
                         time.sleep(2)
                 
-                print('数据下载完毕，已保存到'+file_path)
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
     #保存为xls文件
     file_path = dir_path + board_name +'.xls'
     workbook.save(file_path)
+    print('数据下载完毕，已保存到'+file_path)
     
     browser.close()
     browser.quit()
@@ -287,18 +280,18 @@ def getAnnualReportByStockCode (stock_code,date):
 
     # header里面必须加入Cookie，否则会报400错误
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-               "Cookie":"device_id=0887667ae157d8aecf875f314dcb8289; s=cn151gduqd; bid=232c888fc9a3a35853a183e5b3261fdc_k3gpvgsx; Hm_lvt_1db88642e346389874251b5a1eded6e3=1589510813; remember=1; xq_a_token=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOjEzMzMwMTA2ODEsImlzcyI6InVjIiwiZXhwIjoxNTkyMTAyODUzLCJjdG0iOjE1ODk1MTA4NTMyMTEsImNpZCI6ImQ5ZDBuNEFadXAifQ.eUJyQFOJNeLia4668qKnbUJwJZC4N6ypxoip-WZeJOvOhN7d7CdpbSjZ3Bfg9AoR5qAL4oCVse00PSCiBHPCuBtwRcLg2FgYLzOcpWeb_MNHdg7bqv-UScYnEC-eFE73unup7RQfmeCylNFFrpmmcHKRPnwenTXZ0_wpmu5VPZdtoBd0gsj8mYecB6cHXvnoIVXyDnO8B6Iw4MBzbfCEAGU2DJRwtZQLQIzVrKouzzeUP2QuoWe-56GFyi-s-dTHA92KB0QPAyPkbRgZA45GMIkZBBB4_b2MFHb5KEou1dWp9m5kXFo2HJqJ5til2mX_pyXL8h6LCsmbLJvv1B42Jw; xqat=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_r_token=b6932ec9dc8669d2714c8d301ad32f66c113ed13; xq_is_login=1; u=1333010681; is_overseas=0; snbim_minify=true; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1589510867"}
+               "Cookie":"device_id=0887667ae157d8aecf875f314dcb8289; s=cn151gduqd; __utmz=1.1570840501.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); bid=232c888fc9a3a35853a183e5b3261fdc_k3gpvgsx; aliyungf_tc=AQAAAP07P1SgSQgAagu+PIXLc6gWw3bT; __utmc=1; __utma=1.1537207484.1570840501.1582879668.1584329878.8; Hm_lvt_1db88642e346389874251b5a1eded6e3=1589510813; remember=1; xq_a_token=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOjEzMzMwMTA2ODEsImlzcyI6InVjIiwiZXhwIjoxNTkyMTAyODUzLCJjdG0iOjE1ODk1MTA4NTMyMTEsImNpZCI6ImQ5ZDBuNEFadXAifQ.eUJyQFOJNeLia4668qKnbUJwJZC4N6ypxoip-WZeJOvOhN7d7CdpbSjZ3Bfg9AoR5qAL4oCVse00PSCiBHPCuBtwRcLg2FgYLzOcpWeb_MNHdg7bqv-UScYnEC-eFE73unup7RQfmeCylNFFrpmmcHKRPnwenTXZ0_wpmu5VPZdtoBd0gsj8mYecB6cHXvnoIVXyDnO8B6Iw4MBzbfCEAGU2DJRwtZQLQIzVrKouzzeUP2QuoWe-56GFyi-s-dTHA92KB0QPAyPkbRgZA45GMIkZBBB4_b2MFHb5KEou1dWp9m5kXFo2HJqJ5til2mX_pyXL8h6LCsmbLJvv1B42Jw; xqat=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_r_token=b6932ec9dc8669d2714c8d301ad32f66c113ed13; xq_is_login=1; u=1333010681; snbim_minify=true; acw_tc=2760823f15909985190972948e4d4e3b485a9865172e961c07b39c8d6d9a3d; is_overseas=0; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1590999788"}
 
     data = requests.get(url, headers = headers)
     try:
         data = pd.read_json(data.text, dtype=False, orient='records')
-    except Exception as e:
+    except Exception:
         return {}
     # title = data['data']['quote_name'] + '({})'.format(symbol)
     try:
         dict_fin = pd.Series(data['data']['list'])[0]
         return dict_fin
-    except Exception as e:
+    except Exception:
         return {}
     
 years = {'2013':'2013-12-31','2014':'2014-12-31','2015':'2015-12-31','2016':'2016-12-31','2017':'2017-12-31','2018':'2018-12-31','2019':'2019-12-31'} 
@@ -309,9 +302,11 @@ def getAnnualReports (dir_path,df,year):
     # stock_name：股票简称
     '-------财务数据-------'
     # total_revenue：营业收入
+    # total_revenue_gr：营业收入增长率
     # net_profit_atsopc：净利润
     
     # basic_eps：每股收益
+    # basic_eps_gr：每股收益增长率
     # np_per_share：每股净资产
     # operate_cash_flow_ps：现金流
     
@@ -362,7 +357,7 @@ def getPETTM(stock_code,years = 5):
     url = 'http://www.dashiyetouzi.com/tools/compare/historical_valuation_data.php'
     # 这里必须带上Cookie，否则获取不到数据
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-              "Cookie":"PHPSESSID=33rfqe5qn4k1denua4nv4t7a36; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1582880026; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1582880122"}
+              "Cookie":"PHPSESSID=33rfqe5qn4k1denua4nv4t7a36; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1589508791; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1590999955"}
     
     from_date = datu.timeStamp2Date(time.time() - (datu.oneDaySecond() * years * 365))
     to_date = datu.timeStamp2Date(time.time())
@@ -380,11 +375,12 @@ def getPEMedian(stock_code):
             pe_list.append(pair[1])
         pe_median = np.median(pe_list)
 #        pe_newest = pe_list[len(pe_list) - 1]
-    except Exception as e:
+    except Exception:
         return 0
     
     return pe_median
         
+#-----------------------------------测试代码-------------------------------------------------
 #getStockDataByType('E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/')
 #getIndexStockByType('E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/','沪深300')
     
@@ -392,4 +388,4 @@ def getPEMedian(stock_code):
 #dir_path = 'E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/'
 #getAnnualReports(dir_path,df,'2018')
     
-#print(getPEMedian('002572'))
+# print(getPEMedian('600167'))
