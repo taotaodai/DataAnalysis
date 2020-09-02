@@ -15,6 +15,7 @@ import time
 import pandas as pd
 import numpy as np
 import json
+from sqlalchemy import create_engine
 from utils import DateAndTimeUtil as datu
 from utils import CommonUtil as cu
 from utils import StockDataUtil as sdu
@@ -38,7 +39,7 @@ STOCK_TYPE_ZXB = '中小板'
 STOCK_TYPE_CYB = '创业板'
 
 #根据股票类型获取相关股票列表
-def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
+def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA,save_to_db=False):
     # StockCode：股票代码
     # StockName：股票简称
     # Price：当前股价
@@ -82,6 +83,9 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
     # 初始化xl对象
     workbook = xlwt.Workbook()
     
+    #连接数据库
+    engine = create_engine('mysql+pymysql://root:root@localhost:3306/listed_company')
+    
     try:
         for i,board in enumerate(boards):
             board_name =board.text
@@ -93,6 +97,7 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
                 page_parent = browser.find_element_by_class_name('paginate_page')
                 pages = page_parent.find_elements_by_xpath('.//*')
                 total_page = int(pages[len(pages) - 1].text)
+                # total_page = 2
                 
                 #统计每页缺失数据的数量
                 missing_count = 0
@@ -112,13 +117,17 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
                             continue
                         else:
                             row_index += 1
-                            sheet.write(row_index,0,code.text)
-                            sheet.write(row_index,1,company.text)
-                            sheet.write(row_index,2,price.text)
-                            sheet.write(row_index,3,pl.text)
-                            sheet.write(row_index,4,qrr.text)
-                            sheet.write(row_index,5,tr.text)
-                            getBaseDataFromF10(code.text,row_index,6,sheet)                            
+                            if save_to_db:
+                                sql = 'INSERT INTO t_tonghua (stock_code,stock_name) VALUES ("{}","{}")'.format(code.text,company.text)
+                                engine.execute(sql)
+                            else:
+                                sheet.write(row_index,0,code.text)
+                                sheet.write(row_index,1,company.text)
+                                sheet.write(row_index,2,price.text)
+                                sheet.write(row_index,3,pl.text)
+                                sheet.write(row_index,4,qrr.text)
+                                sheet.write(row_index,5,tr.text)
+                                getBaseDataFromF10(code.text,row_index,6,sheet)                            
                     
                     page_btn = browser.find_element_by_xpath('//*[@id="main-table_paginate"]/a[2]')
                     if page < total_page:
@@ -127,10 +136,12 @@ def getStockDataByType(dir_path,stock_type=STOCK_TYPE_HSA):
                 
     except Exception:
         traceback.print_exc()
-    #保存为xls文件
-    file_path = dir_path + board_name +'.xls'
-    workbook.save(file_path)
-    print('数据下载完毕，已保存到'+file_path)
+    
+    if save_to_db == False:
+        #保存为xls文件
+        file_path = dir_path + board_name +'.xls'
+        workbook.save(file_path)
+        print('数据下载完毕，已保存到'+file_path)
     
     browser.close()
     browser.quit()
@@ -357,7 +368,7 @@ def getPETTM(stock_code,years = 5):
     url = 'http://www.dashiyetouzi.com/tools/compare/historical_valuation_data.php'
     # 这里必须带上Cookie，否则获取不到数据
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-              "Cookie":"PHPSESSID=33rfqe5qn4k1denua4nv4t7a36; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1589508791; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1590999955"}
+              "Cookie":"PHPSESSID=33rfqe5qn4k1denua4nv4t7a36; stock=%u8054%u7F8E%u63A7%u80A1%3BSH%3B600167; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1597730676,1597730693; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1597730708"}
     
     from_date = datu.timeStamp2Date(time.time() - (datu.oneDaySecond() * years * 365))
     to_date = datu.timeStamp2Date(time.time())
