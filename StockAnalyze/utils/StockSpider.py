@@ -288,24 +288,28 @@ def getAnnualReportByStockCode (stock_code,date):
     url = "https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?" \
             "symbol={}&type=all&is_detail=true&count={}&timestamp={}" .\
             format(symbol, count,datu.date2TimeStamp(date))
-
+    
+    # print(url)
     # header里面必须加入Cookie，否则会报400错误
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-               "Cookie":"device_id=0887667ae157d8aecf875f314dcb8289; s=cn151gduqd; __utmz=1.1570840501.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); bid=232c888fc9a3a35853a183e5b3261fdc_k3gpvgsx; aliyungf_tc=AQAAAP07P1SgSQgAagu+PIXLc6gWw3bT; __utmc=1; __utma=1.1537207484.1570840501.1582879668.1584329878.8; Hm_lvt_1db88642e346389874251b5a1eded6e3=1589510813; remember=1; xq_a_token=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOjEzMzMwMTA2ODEsImlzcyI6InVjIiwiZXhwIjoxNTkyMTAyODUzLCJjdG0iOjE1ODk1MTA4NTMyMTEsImNpZCI6ImQ5ZDBuNEFadXAifQ.eUJyQFOJNeLia4668qKnbUJwJZC4N6ypxoip-WZeJOvOhN7d7CdpbSjZ3Bfg9AoR5qAL4oCVse00PSCiBHPCuBtwRcLg2FgYLzOcpWeb_MNHdg7bqv-UScYnEC-eFE73unup7RQfmeCylNFFrpmmcHKRPnwenTXZ0_wpmu5VPZdtoBd0gsj8mYecB6cHXvnoIVXyDnO8B6Iw4MBzbfCEAGU2DJRwtZQLQIzVrKouzzeUP2QuoWe-56GFyi-s-dTHA92KB0QPAyPkbRgZA45GMIkZBBB4_b2MFHb5KEou1dWp9m5kXFo2HJqJ5til2mX_pyXL8h6LCsmbLJvv1B42Jw; xqat=d8e3d5b46732e0196481d7f4d9ca2389ad2006e3; xq_r_token=b6932ec9dc8669d2714c8d301ad32f66c113ed13; xq_is_login=1; u=1333010681; snbim_minify=true; acw_tc=2760823f15909985190972948e4d4e3b485a9865172e961c07b39c8d6d9a3d; is_overseas=0; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1590999788"}
+               "Cookie":"Hm_lvt_1db88642e346389874251b5a1eded6e3=1633742515; device_id=148ce45f1c3420f2560f46f55f5929cb; s=bq11i2gfwp; __utmc=1; __utmz=1.1633742720.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); acw_tc=3ccdc15316337500942814179e76a00bfa3c27ced08eeef334a330b259b937; remember=1; xq_a_token=576cf04ba868551f310417bf21651d9866114e88; xqat=576cf04ba868551f310417bf21651d9866114e88; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOjEzMzMwMTA2ODEsImlzcyI6InVjIiwiZXhwIjoxNjM2MzQyMTI4LCJjdG0iOjE2MzM3NTAxMjg4MDQsImNpZCI6ImQ5ZDBuNEFadXAifQ.BfGWPUfSLE361SRrkvj0V5UhOj_D5snwMTG0nXyD-EfeHc6wxJzR9FPBGtS5F9nDK587x1pYBZzUqWs8RhU1ekblDzJCxYjpfwaqSGm0m40LHnP9DFGqQn1D-k4RY9wpwDqnQ2A-vEa9Pv_uCpRrQBWRSgXoXuIIp0rc1twsdzjpZyfxMJ1rx6PS8b6R_suepppvsSmHHwZojhVxj5n8fBtJclf8eB-TauxvwySMvi8cmmrx5cHG82zVr4xbJ7h6zf_mKOfs7VHNVPb6FiJSDgH3_62faj-XNpQPJAH-4tr-0ydKL3xygzIfvgevETIKE_3CmmRfN54_WeN9d95VlA; xq_r_token=a13f2a57855b8169a04086e17d0067c78228c969; xq_is_login=1; u=1333010681; bid=232c888fc9a3a35853a183e5b3261fdc_kuj8n7qw; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1633750128; __utma=1.501209350.1633742720.1633742720.1633750128.2; __utmt=1; __utmb=1.2.10.1633750128"}
 
     data = requests.get(url, headers = headers)
     try:
+        # print(data.text)
         data = pd.read_json(data.text, dtype=False, orient='records')
-    except Exception:
+    except Exception as e:
+        print(e)
         return {}
     # title = data['data']['quote_name'] + '({})'.format(symbol)
     try:
         dict_fin = pd.Series(data['data']['list'])[0]
         return dict_fin
-    except Exception:
+    except Exception as e:
+        print(e)
         return {}
     
-years = {'2013':'2013-12-31','2014':'2014-12-31','2015':'2015-12-31','2016':'2016-12-31','2017':'2017-12-31','2018':'2018-12-31','2019':'2019-12-31'} 
+years = {'2013':'2013-12-31','2014':'2014-12-31','2015':'2015-12-31','2016':'2016-12-31','2017':'2017-12-31','2018':'2018-12-31','2019':'2019-12-31','2020':'2020-12-31'} 
 def getAnnualReports (dir_path,df,year):
     workbook = xlwt.Workbook()
 
@@ -368,7 +372,7 @@ def getPETTM(stock_code,years = 5):
     url = 'http://www.dashiyetouzi.com/tools/compare/historical_valuation_data.php'
     # 这里必须带上Cookie，否则获取不到数据
     headers = {"user-agent":"PostmanRuntime/7.13.0",
-              "Cookie":"PHPSESSID=33rfqe5qn4k1denua4nv4t7a36; stock=%u8054%u7F8E%u63A7%u80A1%3BSH%3B600167; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1603159071,1603159089,1604280113; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1604280165"}
+              "Cookie":"PHPSESSID=bcb37fudh7g5l18hg1ath85fd3; Hm_lvt_210e7fd46c913658d1ca5581797c34e3=1633760068,1633760666,1633760674; Hm_lpvt_210e7fd46c913658d1ca5581797c34e3=1633760723"}
     
     from_date = datu.timeStamp2Date(time.time() - (datu.oneDaySecond() * years * 365))
     to_date = datu.timeStamp2Date(time.time())
@@ -392,11 +396,11 @@ def getPEMedian(stock_code):
     return pe_median
         
 #-----------------------------------测试代码-------------------------------------------------
-#getStockDataByType('E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/')
+# getStockDataByType('E:/wangtao/PythonWorkSpace/DataAnalysis/StockAnalyze/data/')
 #getIndexStockByType('E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/','沪深300')
     
-#df = pd.read_excel("E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/沪深A股.xls",converters= {u'StockCode':str})
-#dir_path = 'E:/wangtao/PythonWorkSpace/SpiderSpace/Stock_Companies/data/'
-#getAnnualReports(dir_path,df,'2018')
+# df = pd.read_excel("E:/wangtao/PythonWorkSpace/DataAnalysis/StockAnalyze/data/沪深A股.xls",converters= {u'StockCode':str})
+# dir_path = 'E:/wangtao/PythonWorkSpace/DataAnalysis/StockAnalyze/data/'
+# getAnnualReports(dir_path,df,'2020')
     
 # print(getPEMedian('600167'))
